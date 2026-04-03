@@ -1,0 +1,159 @@
+.page { display: flex; flex-direction: column; gap: 24px; }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; }
+.title { font-size: 22px; font-weight: 300; color: var(--text-primary); letter-spacing: -0.02em; }
+.sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+.createBtn {
+  padding: 7px 16px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-active);
+  font-size: 13px;
+  color: var(--text-accent);
+  background: var(--accent-dim);
+  transition: all var(--transition);
+}
+.createBtn:hover { background: rgba(245,166,35,0.22); }
+
+.createPanel {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.createTitle { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.createHint { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+.createRow { display: flex; flex-direction: column; gap: 10px; }
+
+.iconPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.iconOpt {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.iconOpt:hover { border-color: var(--border-hover); background: var(--bg-hover); }
+.iconSelected { border-color: var(--border-active); background: var(--accent-dim); }
+
+.nameInput {
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.nameInput:focus { border-color: var(--border-active); }
+.nameInput::placeholder { color: var(--text-tertiary); }
+
+.createActions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.cancelBtn {
+  padding: 7px 16px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.cancelBtn:hover { border-color: var(--border-hover); }
+
+.saveBtn {
+  padding: 7px 16px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-active);
+  font-size: 13px;
+  color: var(--text-accent);
+  background: var(--accent-dim);
+  transition: all var(--transition);
+}
+.saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.saveBtn:not(:disabled):hover { background: rgba(245,166,35,0.22); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all var(--transition);
+}
+.card:hover { border-color: var(--border-hover); }
+.cardActivating { border-color: var(--border-active); background: var(--accent-glow); }
+
+.cardIcon { font-size: 28px; margin-bottom: 4px; }
+.cardName { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.cardMeta { font-size: 12px; color: var(--text-tertiary); }
+
+.devicePreview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.previewDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all var(--transition);
+}
+
+.previewMore {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.cardActions { display: flex; gap: 6px; margin-top: 6px; }
+
+.activateBtn {
+  flex: 1;
+  padding: 7px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.activateBtn:hover:not(:disabled) { border-color: var(--border-active); color: var(--text-accent); background: var(--accent-dim); }
+.activateBtn:disabled { color: var(--govee-color); border-color: rgba(74,222,128,0.3); }
+
+.deleteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.deleteBtn:hover { border-color: rgba(248,113,113,0.4); color: #f87171; background: rgba(248,113,113,0.08); }

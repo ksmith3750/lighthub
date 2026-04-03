@@ -104,20 +104,24 @@ launchctl load ~/Library/LaunchAgents/com.lighthub.scheduler.plist
 
 - **Kasa**: Uses `python-kasa` for local LAN control (UDP). No cloud, no latency.
 - **Hue**: Uses `phue` to talk to your Hue Bridge REST API over LAN. No internet required.
-- **Govee**: Uses the official Govee cloud API (requires internet + API key). Some newer Govee devices support LAN mode — check Govee's documentation if you want purely local control.
+- **Govee**: Uses the Govee OpenAPI (`openapi.api.govee.com`) which exposes more devices than the older v1 API. For devices that support it, LAN control is also attempted via UDP broadcast on port 4003 — this works without internet and is used automatically when available.
 
 The backend serves a unified REST API. The React frontend talks only to the backend.
-Device state is kept in memory and persisted to `lighthub_config.json`.
+Device state (discovered lights, room assignments) is persisted to `lighthub_devices.json` so your devices appear immediately on restart without re-running discovery.
 
 ---
 
 ## Features
 
 - **Devices**: Toggle on/off, adjust brightness, pick colors (Hue & Govee), assign to rooms
+- **Friendly names**: Give any light a custom label — expand a device card and edit the Label field. Names survive re-discovery.
 - **Scenes**: Save current device states as named scenes, activate with one click
 - **Schedules**: Time-based scene triggers (specific time, sunrise, or sunset)
 - **Room grouping**: Control all lights in a room at once
 - **Brand filtering**: View just Kasa, Hue, or Govee devices
+- **Persistent device state**: Discovered devices and room assignments are saved automatically — no need to re-run discovery after restarting the app
+- **Govee LAN control**: If your Govee device has LAN Control enabled (Govee app → device settings → LAN Control), the app will control it locally without the cloud API
+- **Govee floor lamp support**: Floor lamp models (H607C and others) are correctly identified and displayed with a distinct icon
 
 ---
 
@@ -125,4 +129,5 @@ Device state is kept in memory and persisted to `lighthub_config.json`.
 
 - Add new device brands by implementing discover + control functions in `main.py`
 - Add automation conditions (motion, sunrise offset, etc.) in `scheduler.py`
-- The `lighthub_config.json` file stores all scenes and schedules — back it up!
+- The `lighthub_config.json` file stores scenes, schedules, and friendly names — back it up!
+- `lighthub_devices.json` stores discovered device state — safe to delete if you want a clean re-discovery

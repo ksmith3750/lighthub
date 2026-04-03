@@ -1,0 +1,99 @@
+.page { display: flex; flex-direction: column; gap: 20px; }
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title { font-size: 22px; font-weight: 300; color: var(--text-primary); letter-spacing: -0.02em; }
+.sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+.headerActions { display: flex; gap: 6px; }
+
+.actionBtn {
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.actionBtn:hover { border-color: var(--border-active); color: var(--text-accent); background: var(--accent-dim); }
+
+.scenesRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sceneChip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  background: var(--bg-surface);
+}
+.sceneChip:hover { border-color: var(--border-active); color: var(--text-accent); background: var(--accent-dim); }
+
+.filterRow { display: flex; gap: 4px; }
+
+.filterBtn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid transparent;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: all var(--transition);
+}
+.filterBtn:hover { color: var(--text-secondary); }
+.filterActive { border-color: var(--border); color: var(--text-primary); background: var(--bg-elevated); }
+
+.group { display: flex; flex-direction: column; gap: 12px; }
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.groupLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.groupMeta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+
+.groupActions { display: flex; gap: 4px; margin-left: auto; }
+
+.miniBtn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 0.5px solid var(--border);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  transition: all var(--transition);
+}
+.miniBtn:hover { border-color: var(--border-active); color: var(--text-accent); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-tertiary);
+}
+.emptyHint { font-size: 12px; margin-top: 6px; }

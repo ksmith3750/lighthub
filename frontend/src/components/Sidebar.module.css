@@ -1,0 +1,153 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border-right: 0.5px solid var(--border);
+  padding: 20px 12px;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 16px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.brandIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.brandIcon svg { width: 16px; height: 16px; }
+
+.brandName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.onCount {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  width: 100%;
+  text-align: left;
+}
+
+.navItem:hover { background: var(--bg-hover); color: var(--text-primary); }
+.navActive { background: var(--accent-dim) !important; color: var(--text-accent) !important; }
+
+.navIcon { font-size: 14px; width: 18px; text-align: center; }
+
+.section { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+.sectionLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  padding: 0 10px;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.roomBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  width: 100%;
+  text-align: left;
+}
+
+.roomBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.roomActive { background: var(--bg-hover) !important; color: var(--text-primary) !important; }
+
+.roomCount {
+  margin-left: auto;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+
+/* Status dots */
+.dotOn, .dotOff, .dotMixed, .dotEmpty {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.dotOn { background: var(--accent); box-shadow: 0 0 5px rgba(245,166,35,0.5); }
+.dotOff { background: var(--text-tertiary); }
+.dotMixed { background: var(--kasa-color); }
+.dotEmpty { background: var(--border); }
+
+.footer { margin-top: auto; padding-top: 12px; border-top: 0.5px solid var(--border); }
+
+.discoverBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.discoverBtn:hover:not(:disabled) {
+  border-color: var(--border-active);
+  color: var(--text-accent);
+  background: var(--accent-dim);
+}
+
+.discoverBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
