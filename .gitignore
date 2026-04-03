@@ -16,6 +16,7 @@ dist/
 # Runtime state & secrets
 backend/lighthub_config.json
 backend/lighthub_devices.json
+backend/.env
 
 # OS
 .DS_Store
