@@ -14,6 +14,9 @@ import logging
 import socket
 import uuid
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()  # loads .env from the backend directory (or parent)
 
 # ── Conditional imports (graceful fallback if libraries not installed) ──────
 try:
@@ -55,21 +58,28 @@ CONFIG_FILE = "lighthub_config.json"
 STATE_FILE = "lighthub_devices.json"
 
 def load_config() -> dict:
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE) as f:
-            return json.load(f)
-    return {
+    base = {
         "hue_bridge_ip": "",
-        "govee_api_key": "",
+        "govee_api_key": os.environ.get("GOVEE_API_KEY", ""),
         "device_names": {},
         "rooms": {},
         "scenes": {},
         "schedules": []
     }
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE) as f:
+            stored = json.load(f)
+        # Merge stored values but always prefer env var for the API key
+        base.update({k: v for k, v in stored.items() if k != "govee_api_key"})
+        if not os.environ.get("GOVEE_API_KEY") and stored.get("govee_api_key"):
+            base["govee_api_key"] = stored["govee_api_key"]  # legacy fallback
+    return base
 
 def save_config(config: dict):
+    # Never write the API key to disk — it lives in .env
+    safe = {k: v for k, v in config.items() if k != "govee_api_key"}
     with open(CONFIG_FILE, "w") as f:
-        json.dump(config, f, indent=2)
+        json.dump(safe, f, indent=2)
 
 def load_device_state() -> Dict[str, dict]:
     if os.path.exists(STATE_FILE):
