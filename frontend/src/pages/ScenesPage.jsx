@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import styles from './ScenesPage.module.css'
+import SenatorsModeCard from '../components/SenatorsModeCard.jsx'
 
 const ICONS = ['💡','🌅','🎬','🍽️','💤','🎉','📚','🌙','🏠','🌈','🔆','🌒','⚡','🎵','🌿']
 
-export default function ScenesPage({ scenes, devices, onActivate, onCreate, onDelete }) {
+export default function ScenesPage({ scenes, devices, onActivate, onCreate, onDelete, senatorsStatus, senatorsLoading, onSenatorActivate, onSenatorDeactivate }) {
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
   const [newIcon, setNewIcon] = useState('💡')
@@ -78,6 +79,13 @@ export default function ScenesPage({ scenes, devices, onActivate, onCreate, onDe
           </div>
         </div>
       )}
+
+      <SenatorsModeCard
+        status={senatorsStatus}
+        onActivate={onSenatorActivate}
+        onDeactivate={onSenatorDeactivate}
+        loading={senatorsLoading}
+      />
 
       <div className={styles.grid}>
         {Object.entries(scenes).map(([name, scene]) => {
