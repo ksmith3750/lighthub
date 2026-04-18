@@ -2,6 +2,8 @@
 
 A unified smart home lighting dashboard for **Kasa plugs**, **Philips Hue**, and **Govee strips**.
 
+![LightHub dashboard showing devices page with Hue, Govee, and Kasa lights](docs/screenshot.png)
+
 ## Project structure
 
 ```
