@@ -1,8 +1,16 @@
 import pytest
 import respx
 import httpx
+import senators
 from httpx import Response
 from senators import NHL_API
+
+MOCK_DEVICES = {
+    "hue_001": {"id": "hue_001", "brand": "hue", "reachable": True},
+    "kasa_001": {"id": "kasa_001", "brand": "kasa", "reachable": True},
+    "govee_001": {"id": "govee_001", "brand": "govee", "reachable": True},
+    "hue_002": {"id": "hue_002", "brand": "hue", "reachable": False},
+}
 
 # Reset senators module state before each test
 @pytest.fixture(autouse=True)
@@ -102,3 +110,95 @@ async def test_fetch_todays_game_no_ott_game():
     from senators import fetch_todays_game
     game = await fetch_todays_game()
     assert game is None
+
+
+@pytest.mark.asyncio
+async def test_set_all_senators_red_sends_red_to_color_devices():
+    calls = []
+
+    async def mock_send(device_id, cmd):
+        calls.append((device_id, cmd))
+
+    senators._device_state = MOCK_DEVICES
+    senators._send_command = mock_send
+
+    await senators._set_all_senators_red()
+
+    hue_call = next(c for c in calls if c[0] == "hue_001")
+    assert hue_call[1]["color"] == {"r": 255, "g": 0, "b": 0}
+    assert hue_call[1]["on"] is True
+    assert hue_call[1]["brightness"] == 100
+
+
+@pytest.mark.asyncio
+async def test_set_all_senators_red_kasa_has_no_color():
+    calls = []
+
+    async def mock_send(device_id, cmd):
+        calls.append((device_id, cmd))
+
+    senators._device_state = MOCK_DEVICES
+    senators._send_command = mock_send
+
+    await senators._set_all_senators_red()
+
+    kasa_call = next(c for c in calls if c[0] == "kasa_001")
+    assert "color" not in kasa_call[1]
+    assert kasa_call[1]["on"] is True
+
+
+@pytest.mark.asyncio
+async def test_set_all_senators_red_skips_unreachable():
+    calls = []
+
+    async def mock_send(device_id, cmd):
+        calls.append((device_id, cmd))
+
+    senators._device_state = MOCK_DEVICES
+    senators._send_command = mock_send
+
+    await senators._set_all_senators_red()
+
+    device_ids = [c[0] for c in calls]
+    assert "hue_002" not in device_ids
+
+
+@pytest.mark.asyncio
+async def test_goal_flash_sends_ten_on_off_cycles_then_restores():
+    calls = []
+
+    async def mock_send(device_id, cmd):
+        calls.append((device_id, cmd))
+
+    senators._device_state = {"hue_001": {"id": "hue_001", "brand": "hue", "reachable": True}}
+    senators._send_command = mock_send
+
+    import unittest.mock as mock
+    with mock.patch("senators.asyncio.sleep", return_value=None):
+        await senators._goal_flash()
+
+    # 1 device × (10 on + 10 off) + 1 restore = 21 calls
+    assert len(calls) == 21
+    on_calls  = [c for c in calls[:20] if c[1].get("on") is True]
+    off_calls = [c for c in calls[:20] if c[1].get("on") is False]
+    assert len(on_calls)  == 10
+    assert len(off_calls) == 10
+
+
+@pytest.mark.asyncio
+async def test_opponent_dim_sets_10pct_then_restores_red():
+    calls = []
+
+    async def mock_send(device_id, cmd):
+        calls.append((device_id, cmd))
+
+    senators._device_state = {"hue_001": {"id": "hue_001", "brand": "hue", "reachable": True}}
+    senators._send_command = mock_send
+
+    import unittest.mock as mock
+    with mock.patch("senators.asyncio.sleep", return_value=None):
+        await senators._opponent_dim()
+
+    assert calls[0][1]["brightness"] == 10
+    assert calls[1][1]["color"] == {"r": 255, "g": 0, "b": 0}
+    assert calls[1][1]["brightness"] == 100

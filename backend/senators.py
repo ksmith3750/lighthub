@@ -32,6 +32,47 @@ def get_status() -> dict:
     return _state.copy()
 
 
+async def _set_all_senators_red():
+    targets = [d for d in _device_state.values() if d.get("reachable")]
+    tasks = []
+    for dev in targets:
+        if dev.get("brand") == "kasa":
+            cmd = {"on": True, "brightness": 100}
+        else:
+            cmd = {"on": True, "brightness": 100, "color": SENATORS_RED}
+        tasks.append(_send_command(dev["id"], cmd))
+    if tasks:
+        await asyncio.gather(*tasks)
+
+
+async def _goal_flash():
+    targets = [d for d in _device_state.values() if d.get("reachable")]
+    for _ in range(FLASH_COUNT):
+        on_tasks = []
+        for dev in targets:
+            if dev.get("brand") == "kasa":
+                cmd = {"on": True, "brightness": 100}
+            else:
+                cmd = {"on": True, "brightness": 100, "color": SENATORS_RED}
+            on_tasks.append(_send_command(dev["id"], cmd))
+        await asyncio.gather(*on_tasks)
+        await asyncio.sleep(FLASH_ON_SECS)
+
+        off_tasks = [_send_command(dev["id"], {"on": False}) for dev in targets]
+        await asyncio.gather(*off_tasks)
+        await asyncio.sleep(FLASH_OFF_SECS)
+
+    await _set_all_senators_red()
+
+
+async def _opponent_dim():
+    targets = [d for d in _device_state.values() if d.get("reachable")]
+    dim_tasks = [_send_command(dev["id"], {"brightness": DIM_BRIGHTNESS}) for dev in targets]
+    await asyncio.gather(*dim_tasks)
+    await asyncio.sleep(DIM_DURATION)
+    await _set_all_senators_red()
+
+
 async def fetch_todays_game() -> Optional[dict]:
     async with httpx.AsyncClient() as client:
         resp = await client.get(NHL_API, timeout=5.0)
