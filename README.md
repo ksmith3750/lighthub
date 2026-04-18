@@ -2,7 +2,7 @@
 
 A unified smart home lighting dashboard for **Kasa plugs**, **Philips Hue**, and **Govee strips**.
 
-![LightHub dashboard showing devices page with Hue, Govee, and Kasa lights](docs/screenshot.png)
+![LightHub dashboard showing Senators Mode on the Scenes page](docs/Screenshot%202026-04-18%20at%202.32.05%E2%80%AFPM.png)
 
 ## Project structure
 
@@ -124,6 +124,23 @@ Device state (discovered lights, room assignments) is persisted to `lighthub_dev
 - **Persistent device state**: Discovered devices and room assignments are saved automatically — no need to re-run discovery after restarting the app
 - **Govee LAN control**: If your Govee device has LAN Control enabled (Govee app → device settings → LAN Control), the app will control it locally without the cloud API
 - **Govee floor lamp support**: Floor lamp models (H607C and others) are correctly identified and displayed with a distinct icon
+- **Ottawa Senators Mode**: Turns all reachable lights red while an Ottawa Senators game is live, flashes on a goal, dims briefly on an opponent goal, and auto-deactivates when the game ends
+
+---
+
+## Ottawa Senators Mode
+
+Activate from the **Scenes** page. The card shows the live score and toggles the mode on/off.
+
+- **All lights go red** (`#DA1A32`) when activated
+- **Goal flash**: lights strobe red/off 10× when the Senators score
+- **Opponent goal**: lights dim to 10% for 3 seconds, then restore to red
+- **Auto-deactivates** when the game reaches `FINAL`
+- **No game today**: mode still activates (red theme), score area shows "No game today"
+
+Uses the free public NHL Stats API (`api-web.nhle.com`) — no authentication required. The backend polls every 15 seconds while a game is live; the frontend polls the backend's `/api/senators/status` every 15 seconds while the mode is active to keep the score display current.
+
+Senators Mode state is in-memory only — if the backend restarts, the mode resets to off.
 
 ---
 

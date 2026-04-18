@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from './api.js'
 import Sidebar from './components/Sidebar.jsx'
 import DevicesPage from './pages/DevicesPage.jsx'
@@ -22,6 +22,9 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [discovering, setDiscovering] = useState(false)
   const [notification, setNotification] = useState(null)
+  const [senatorsStatus, setSenatorsStatus] = useState({ active: false })
+  const [senatorsLoading, setSenatorsLoading] = useState(false)
+  const senatorsIntervalRef = useRef(null)
 
   const notify = useCallback((msg, type = 'success') => {
     setNotification({ msg, type })
@@ -46,6 +49,10 @@ export default function App() {
   }, [notify])
 
   useEffect(() => { loadAll() }, [loadAll])
+
+  useEffect(() => {
+    return () => clearInterval(senatorsIntervalRef.current)
+  }, [])
 
   const handleCommand = useCallback(async (deviceId, cmd) => {
     // Optimistic update
@@ -89,6 +96,38 @@ export default function App() {
       notify('Scene activation failed', 'error')
     }
   }, [notify, loadAll])
+
+  const handleSenatorActivate = useCallback(async () => {
+    setSenatorsLoading(true)
+    try {
+      const data = await api.activateSenators()
+      setSenatorsStatus(data.status)
+      senatorsIntervalRef.current = setInterval(async () => {
+        try {
+          const s = await api.getSenatorStatus()
+          setSenatorsStatus(s)
+          if (!s.active) clearInterval(senatorsIntervalRef.current)
+        } catch { /* ignore poll errors */ }
+      }, 15000)
+    } catch {
+      notify('Could not activate Senators Mode', 'error')
+    } finally {
+      setSenatorsLoading(false)
+    }
+  }, [notify])
+
+  const handleSenatorDeactivate = useCallback(async () => {
+    setSenatorsLoading(true)
+    try {
+      await api.deactivateSenators()
+      setSenatorsStatus({ active: false })
+      clearInterval(senatorsIntervalRef.current)
+    } catch {
+      notify('Could not deactivate Senators Mode', 'error')
+    } finally {
+      setSenatorsLoading(false)
+    }
+  }, [notify])
 
   // Compute room summaries
   const roomSummary = ROOMS.reduce((acc, room) => {
@@ -169,6 +208,10 @@ export default function App() {
               notify(`Scene deleted`)
               loadAll()
             }}
+            senatorsStatus={senatorsStatus}
+            senatorsLoading={senatorsLoading}
+            onSenatorActivate={handleSenatorActivate}
+            onSenatorDeactivate={handleSenatorDeactivate}
           />
         )}
         {page === 'schedules' && (

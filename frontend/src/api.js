@@ -35,4 +35,9 @@ export const api = {
   getConfig: () => req('GET', '/config'),
   updateConfig: (c) => req('PUT', '/config', c),
   health: () => req('GET', '/health'),
+
+  // Ottawa Senators Mode
+  activateSenators: () => req('POST', '/senators/activate'),
+  deactivateSenators: () => req('POST', '/senators/deactivate'),
+  getSenatorStatus: () => req('GET', '/senators/status'),
 }
