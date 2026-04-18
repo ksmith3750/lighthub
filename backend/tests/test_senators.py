@@ -202,3 +202,94 @@ async def test_opponent_dim_sets_10pct_then_restores_red():
     assert calls[0][1]["brightness"] == 10
     assert calls[1][1]["color"] == {"r": 255, "g": 0, "b": 0}
     assert calls[1][1]["brightness"] == 100
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_activate_sets_active_true():
+    import asyncio
+    respx.get(NHL_API).mock(return_value=Response(200, json={"focusedDate": "2026-04-18", "gamesByDate": []}))
+
+    async def mock_send(device_id, cmd):
+        pass
+
+    await senators.activate(MOCK_DEVICES, mock_send)
+    assert senators._state["active"] is True
+
+    if senators._monitor_task:
+        senators._monitor_task.cancel()
+        try:
+            await senators._monitor_task
+        except asyncio.CancelledError:
+            pass
+
+
+@pytest.mark.asyncio
+async def test_deactivate_sets_active_false():
+    senators._state["active"] = True
+    await senators.deactivate()
+    assert senators._state["active"] is False
+
+
+@pytest.mark.asyncio
+async def test_get_status_returns_state_copy():
+    senators._state.update({"active": True, "senators_score": 3, "opponent_score": 1})
+    status = senators.get_status()
+    assert status["active"] is True
+    assert status["senators_score"] == 3
+    assert status["opponent_score"] == 1
+    # Verify it is a copy, not the live dict
+    status["senators_score"] = 99
+    assert senators._state["senators_score"] == 3
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_monitor_loop_detects_senators_goal():
+    import unittest.mock as mock
+    import asyncio
+
+    call_count = 0
+
+    def nhl_side_effect(request):
+        nonlocal call_count
+        call_count += 1
+        score = 1 if call_count > 1 else 0
+        return Response(200, json={
+            "focusedDate": "2026-04-18",
+            "gamesByDate": [{"date": "2026-04-18", "games": [{
+                "id": 2025020123, "gameState": "LIVE",
+                "homeTeam": {"abbrev": "OTT", "commonName": {"default": "Senators"}, "score": score, "logo": ""},
+                "awayTeam": {"abbrev": "TOR", "commonName": {"default": "Maple Leafs"}, "score": 0, "logo": ""},
+            }]}]
+        })
+
+    respx.get(NHL_API).mock(side_effect=nhl_side_effect)
+
+    async def mock_send(device_id, cmd):
+        pass
+
+    senators._device_state = {}
+    senators._send_command = mock_send
+    senators._state["active"] = True
+
+    poll_count = 0
+
+    async def counting_sleep(n):
+        nonlocal poll_count
+        poll_count += 1
+        if poll_count >= 2:
+            senators._state["active"] = False
+
+    def mock_create_task(coro):
+        # Close the coroutine so flash sequences don't run and don't pollute sleep counts
+        coro.close()
+        f = asyncio.get_event_loop().create_future()
+        f.set_result(None)
+        return f
+
+    with mock.patch("senators.asyncio.sleep", side_effect=counting_sleep), \
+         mock.patch("senators.asyncio.create_task", side_effect=mock_create_task):
+        await senators._monitor_loop()
+
+    assert senators._state["senators_score"] == 1

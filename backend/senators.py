@@ -66,6 +66,91 @@ async def _opponent_dim():
     await _set_all_senators_red()
 
 
+async def _monitor_loop():
+    global _flash_task
+
+    try:
+        game = await fetch_todays_game()
+    except Exception as e:
+        logger.error(f"NHL API error on activate: {e}")
+        game = None
+
+    if game:
+        _state.update({
+            "game_id": game["game_id"],
+            "senators_score": game["senators_score"],
+            "opponent_score": game["opponent_score"],
+            "opponent_name": game["opponent_name"],
+            "team_logo": game["team_logo"],
+        })
+
+    await _set_all_senators_red()
+
+    if not game:
+        return  # No game today — red theme only, no polling
+
+    while _state["active"]:
+        await asyncio.sleep(POLL_INTERVAL)
+        if not _state["active"]:
+            break
+
+        try:
+            game = await fetch_todays_game()
+        except Exception as e:
+            logger.error(f"NHL API poll error: {e}")
+            continue
+
+        if not game:
+            break
+
+        new_senators = game["senators_score"]
+        new_opponent = game["opponent_score"]
+
+        if new_senators > _state["senators_score"]:
+            _state["senators_score"] = new_senators
+            if _flash_task and not _flash_task.done():
+                _flash_task.cancel()
+            _flash_task = asyncio.create_task(_goal_flash())
+
+        if new_opponent > _state["opponent_score"]:
+            _state["opponent_score"] = new_opponent
+            if _flash_task and not _flash_task.done():
+                _flash_task.cancel()
+            _flash_task = asyncio.create_task(_opponent_dim())
+
+        if game["game_state"] == "FINAL":
+            logger.info("Senators game final — deactivating Senators Mode")
+            break
+
+    _state["active"] = False
+
+
+async def activate(device_state: dict, send_command_fn: Callable):
+    global _device_state, _send_command, _monitor_task
+    _device_state = device_state
+    _send_command = send_command_fn
+    _state.update({
+        "active": True,
+        "game_id": None,
+        "senators_score": 0,
+        "opponent_score": 0,
+        "opponent_name": None,
+        "team_logo": None,
+    })
+    if _monitor_task and not _monitor_task.done():
+        _monitor_task.cancel()
+    _monitor_task = asyncio.create_task(_monitor_loop())
+
+
+async def deactivate():
+    global _monitor_task, _flash_task
+    _state["active"] = False
+    if _flash_task and not _flash_task.done():
+        _flash_task.cancel()
+    if _monitor_task and not _monitor_task.done():
+        _monitor_task.cancel()
+
+
 async def fetch_todays_game() -> Optional[dict]:
     async with httpx.AsyncClient() as client:
         resp = await client.get(NHL_API, timeout=5.0)
