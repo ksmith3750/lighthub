@@ -14,6 +14,7 @@ import logging
 import socket
 import uuid
 from datetime import datetime
+import senators
 
 # ── Conditional imports (graceful fallback if libraries not installed) ──────
 try:
@@ -740,3 +741,23 @@ async def health():
         "devices_loaded": len(device_state),
         "timestamp": datetime.now().isoformat()
     }
+
+# ── Ottawa Senators Mode ──────────────────────────────────────────────────────
+
+@app.post("/api/senators/activate")
+async def activate_senators_mode():
+    async def _send(device_id: str, cmd_dict: dict):
+        await send_command(device_id, DeviceCommand(**cmd_dict))
+    await senators.activate(device_state, _send)
+    return {"ok": True, "status": senators.get_status()}
+
+
+@app.post("/api/senators/deactivate")
+async def deactivate_senators_mode():
+    await senators.deactivate()
+    return {"ok": True}
+
+
+@app.get("/api/senators/status")
+async def senators_status():
+    return senators.get_status()
