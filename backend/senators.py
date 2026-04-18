@@ -48,14 +48,7 @@ async def _set_all_senators_red():
 async def _goal_flash():
     targets = [d for d in _device_state.values() if d.get("reachable")]
     for _ in range(FLASH_COUNT):
-        on_tasks = []
-        for dev in targets:
-            if dev.get("brand") == "kasa":
-                cmd = {"on": True, "brightness": 100}
-            else:
-                cmd = {"on": True, "brightness": 100, "color": SENATORS_RED}
-            on_tasks.append(_send_command(dev["id"], cmd))
-        await asyncio.gather(*on_tasks)
+        await _set_all_senators_red()
         await asyncio.sleep(FLASH_ON_SECS)
 
         off_tasks = [_send_command(dev["id"], {"on": False}) for dev in targets]
