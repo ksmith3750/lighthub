@@ -2,6 +2,7 @@ import pytest
 import respx
 import httpx
 from httpx import Response
+from senators import NHL_API
 
 # Reset senators module state before each test
 @pytest.fixture(autouse=True)
@@ -17,9 +18,6 @@ def reset_senators():
     senators._device_state = {}
     senators._send_command = None
     yield
-
-
-NHL_API = "https://api-web.nhle.com/v1/scoreboard/OTT/now"
 
 OTT_HOME_RESPONSE = {
     "focusedDate": "2026-04-18",

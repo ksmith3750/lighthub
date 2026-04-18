@@ -29,7 +29,7 @@ _send_command: Optional[Callable] = None
 
 
 def get_status() -> dict:
-    return {k: v for k, v in _state.items()}
+    return _state.copy()
 
 
 async def fetch_todays_game() -> Optional[dict]:
